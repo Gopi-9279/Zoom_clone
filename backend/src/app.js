@@ -13,6 +13,7 @@ import { connectToSocket } from './controllers/socketManager.js';
 const app = express();
 const server = createServer(app);
 const io = connectToSocket(server);
+import userRoutes from "./routes/user.routes.js"
 app.set("port",process.env.PORT );
 app.use(cors());
 app.use(express.json({limit:"40kb"}))
