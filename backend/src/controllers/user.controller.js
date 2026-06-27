@@ -2,10 +2,10 @@ import { User } from "../models/user.model.js";
 import httpStatus from "http-status";
 import bcrypt ,{hash} from 'bcrypt'
 
-
+import crypto from "crypto"
 const login = async (req,res) =>{
-    const {username,passwrod} = req.body;
-    if(!username || !passwrod){
+    const {username,password} = req.body;
+    if(!username || !password){
         return res.status(400).json({message : "please provide"})
     }
     try {
@@ -13,8 +13,8 @@ const login = async (req,res) =>{
         if(!user){
             return res.status(httpStatus.NOT_FOUND).json({message : "user not found"})
         }
-        if(bcrypt.compare(passwrod,user.passwrod)){
-            let token = crypto = crypto.randomBytes(20).toString("hex");
+        if(await bcrypt.compare(password,user.password)){
+            const token = crypto.randomBytes(20).toString("hex");
             user.token = token;
             await user.save();
             return res.status(httpStatus.OK).json({token : token})
@@ -27,7 +27,7 @@ const login = async (req,res) =>{
 
 
 const register = async (req,res) =>{
-    const {name,username,passwrod} = req.body;
+    const {name,username,password} = req.body;
 
     try{
         const existingUser = await User.findOne({username});
@@ -36,11 +36,11 @@ const register = async (req,res) =>{
 
         }
 
-        const hashedPassword = await bcrypt.hash(passwrod,10);
+        const hashedPassword = await bcrypt.hash(password,10);
         const newUser = new User({
             name:name,
             username:username,
-            passwrod : hashedPassword
+            password : hashedPassword
         }) 
         await newUser.save();
         res.status(httpStatus.CREATED).json({message : "User Registered"})
